@@ -22,7 +22,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🧠</div>
+          
           <h1 className="text-2xl font-bold text-slate-900">Mente Activa</h1>
           <p className="text-slate-500 text-sm mt-1">Inicia sesión en tu cuenta</p>
         </div>

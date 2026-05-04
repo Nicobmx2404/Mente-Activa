@@ -22,7 +22,7 @@ const Registro = () => {
     <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🧠</div>
+          
           <h1 className="text-2xl font-bold text-slate-900">Crear cuenta</h1>
           <p className="text-slate-500 text-sm mt-1">Únete a Mente Activa</p>
         </div>
