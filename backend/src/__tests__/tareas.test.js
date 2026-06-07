@@ -7,6 +7,13 @@ let token;
 const correo = `tareas${Date.now()}@menteactiva.com`;
 const password = 'Password123';
 
+const tareaValida = {
+  titulo: 'Tarea de prueba',
+  descripcion: 'Descripción test',
+  fechaLimite: '2025-12-31T00:00:00.000Z',
+  prioridad: 'media',
+};
+
 beforeAll(async () => {
   await mongoose.connect(process.env.MONGO_URI);
   await request(app).post('/api/auth/registro')
@@ -26,7 +33,7 @@ describe('GET /api/tareas', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  test('con token retorna 200 y array', async () => {
+  test('con token retorna 200', async () => {
     const res = await request(app)
       .get('/api/tareas')
       .set('Authorization', `Bearer ${token}`);
@@ -36,80 +43,113 @@ describe('GET /api/tareas', () => {
 });
 
 describe('POST /api/tareas', () => {
+  test('sin token retorna 401', async () => {
+    const res = await request(app).post('/api/tareas').send(tareaValida);
+    expect(res.statusCode).toBe(401);
+  });
+
   test('crear tarea exitosamente retorna 201', async () => {
     const res = await request(app)
       .post('/api/tareas')
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        titulo: 'Tarea de prueba',
-        descripcion: 'Descripción test',
-        fechaEntrega: '2025-12-31',
-        materia: 'Ingeniería de Software',
-      });
-    expect([201, 200]).toContain(res.statusCode);
+      .send(tareaValida);
+    expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('ok', true);
-  });
-
-  test('sin token retorna 401', async () => {
-    const res = await request(app)
-      .post('/api/tareas')
-      .send({ titulo: 'Sin auth' });
-    expect(res.statusCode).toBe(401);
   });
 
   test('sin título retorna 400', async () => {
     const res = await request(app)
       .post('/api/tareas')
       .set('Authorization', `Bearer ${token}`)
-      .send({ descripcion: 'Sin titulo' });
+      .send({ fechaLimite: '2025-12-31T00:00:00.000Z' });
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('sin fechaLimite retorna 400', async () => {
+    const res = await request(app)
+      .post('/api/tareas')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ titulo: 'Sin fecha' });
+    expect(res.statusCode).toBe(400);
+  });
+
+  test('prioridad inválida retorna 400', async () => {
+    const res = await request(app)
+      .post('/api/tareas')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ ...tareaValida, prioridad: 'urgente' });
     expect(res.statusCode).toBe(400);
   });
 });
 
-describe('PUT /api/tareas/:id', () => {
+describe('Tareas CRUD', () => {
   let tareaId;
 
   beforeAll(async () => {
     const res = await request(app)
       .post('/api/tareas')
       .set('Authorization', `Bearer ${token}`)
-      .send({ titulo: 'Para editar', fechaEntrega: '2025-12-31', materia: 'Test' });
-    tareaId = res.body.tarea?._id || res.body.data?._id;
+      .send(tareaValida);
+    tareaId = res.body.tarea?._id || res.body.data?._id || res.body._id;
   });
 
-  test('actualizar tarea existente', async () => {
+  test('GET /api/tareas/:id retorna la tarea', async () => {
+    if (!tareaId) return;
+    const res = await request(app)
+      .get(`/api/tareas/${tareaId}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('ok', true);
+  });
+
+  test('GET /api/tareas/:id con id inexistente retorna 404', async () => {
+    const res = await request(app)
+      .get('/api/tareas/000000000000000000000000')
+      .set('Authorization', `Bearer ${token}`);
+    expect([404, 400]).toContain(res.statusCode);
+  });
+
+  test('PUT /api/tareas/:id actualiza la tarea', async () => {
     if (!tareaId) return;
     const res = await request(app)
       .put(`/api/tareas/${tareaId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ titulo: 'Editada' });
-    expect([200, 404]).toContain(res.statusCode);
+      .send({ ...tareaValida, titulo: 'Título actualizado' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('ok', true);
   });
-});
 
-describe('DELETE /api/tareas/:id', () => {
-  let tareaId;
-
-  beforeAll(async () => {
+  test('PATCH /api/tareas/:id/completar marca como completada', async () => {
+    if (!tareaId) return;
     const res = await request(app)
-      .post('/api/tareas')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ titulo: 'Para borrar', fechaEntrega: '2025-12-31', materia: 'Test' });
-    tareaId = res.body.tarea?._id || res.body.data?._id;
+      .patch(`/api/tareas/${tareaId}/completar`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('ok', true);
   });
 
-  test('eliminar tarea existente', async () => {
+  test('DELETE /api/tareas/:id elimina la tarea', async () => {
     if (!tareaId) return;
     const res = await request(app)
       .delete(`/api/tareas/${tareaId}`)
       .set('Authorization', `Bearer ${token}`);
-    expect([200, 404]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('ok', true);
   });
 
-  test('id inexistente retorna 404', async () => {
+  test('DELETE con id inexistente retorna 404', async () => {
     const res = await request(app)
       .delete('/api/tareas/000000000000000000000000')
       .set('Authorization', `Bearer ${token}`);
     expect([404, 400]).toContain(res.statusCode);
+  });
+});
+
+describe('Token inválido', () => {
+  test('token malformado retorna 401', async () => {
+    const res = await request(app)
+      .get('/api/tareas')
+      .set('Authorization', 'Bearer token_invalido');
+    expect(res.statusCode).toBe(401);
   });
 });
