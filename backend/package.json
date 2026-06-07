@@ -9,22 +9,26 @@
     "test": "jest --coverage --forceExit",
     "lint": "eslint src/**/*.js"
   },
-"jest": {
-  "testEnvironment": "node",
-  "globalSetup": "./src/__tests__/globalSetup.js",
-  "globalTeardown": "./src/__tests__/globalTeardown.js",
-  "testMatch": ["**/*.test.js"],
-  "forceExit": true,
-  "collectCoverageFrom": [
-    "src/**/*.js",
-    "!src/sockets/**",
-    "!src/config/db.js",
-    "!src/__tests__/**"
-  ],
-  "coverageThreshold": {
-    "global": { "lines": 85 }
-  }
-},
+  "jest": {
+    "testEnvironment": "node",
+    "globalSetup": "./src/__tests__/globalSetup.js",
+    "globalTeardown": "./src/__tests__/globalTeardown.js",
+    "testMatch": [
+      "**/*.test.js"
+    ],
+    "forceExit": true,
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/sockets/**",
+      "!src/config/db.js",
+      "!src/__tests__/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 85
+      }
+    }
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -34,7 +38,9 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.0",
     "morgan": "^1.10.0",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
