@@ -9,20 +9,16 @@
     "test": "jest --coverage --forceExit",
     "lint": "eslint src/**/*.js"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "globalSetup": "./src/__tests__/globalSetup.js",
-    "globalTeardown": "./src/__tests__/globalTeardown.js",
-    "forceExit": true,
-    "coverageThreshold": {
-      "global": {
-        "lines": 85
-      }
-    },
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ]
-  },
+"jest": {
+  "testEnvironment": "node",
+  "globalSetup": "./src/__tests__/globalSetup.js",
+  "globalTeardown": "./src/__tests__/globalTeardown.js",
+  "testMatch": ["**/*.test.js"],
+  "forceExit": true,
+  "coverageThreshold": {
+    "global": { "lines": 85 }
+  }
+},
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
