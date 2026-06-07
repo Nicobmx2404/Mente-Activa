@@ -15,6 +15,12 @@
   "globalTeardown": "./src/__tests__/globalTeardown.js",
   "testMatch": ["**/*.test.js"],
   "forceExit": true,
+  "collectCoverageFrom": [
+    "src/**/*.js",
+    "!src/sockets/**",
+    "!src/config/db.js",
+    "!src/__tests__/**"
+  ],
   "coverageThreshold": {
     "global": { "lines": 85 }
   }

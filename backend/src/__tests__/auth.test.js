@@ -132,3 +132,11 @@ describe('GET /api/auth/perfil', () => {
     expect(res.statusCode).toBe(401);
   });
 });
+
+describe('Error handler', () => {
+  test('ruta con error interno no expone stack en producción', async () => {
+    const res = await request(app).get('/ruta-inexistente');
+    expect(res.statusCode).toBe(404);
+    expect(res.body).not.toHaveProperty('stack');
+  });
+});
