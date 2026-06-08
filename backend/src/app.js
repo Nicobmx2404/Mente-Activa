@@ -26,7 +26,21 @@ const io = new Server(server, {
 configurarSockets(io);
 app.set('io', io);
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+app.use(cors({
+  origin: function(origin, callback) {
+    const allowed = [
+      process.env.CLIENT_URL,
+      'http://localhost:5173',
+    ];
+    // Permitir cualquier subdominio de vercel.app
+    if (!origin || allowed.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('No permitido por CORS'));
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 
